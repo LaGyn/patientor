@@ -5,15 +5,17 @@ import { BrowserRouter as Router, Route, Link, Routes } from "react-router-dom";
 import { Button, Divider, Container, Typography } from '@mui/material';
 
 import { apiBaseUrl } from "./constants";
-import { Patient } from "./types";
+import { DiagnoseEntry, Entry, Patient } from "./types";
 
 import patientService from "./services/patients";
+import diagnoseService from "./services/diagnoses";
 import PatientListPage from "./components/PatientListPage";
 import PatientPage from "./components/PatientPage";
 
 const App = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
-  //const [patient, setPatient] = useState<Patient>(null);
+  const [entries] = useState<Entry[]>([]);
+  const [diagnosis, setDiagnosis] = useState<DiagnoseEntry[]>([]);
 
   useEffect(() => {
     void axios.get<void>(`${apiBaseUrl}/ping`);
@@ -23,17 +25,16 @@ const App = () => {
       setPatients(patients);
     };
     void fetchPatientList();
-/*
-    const fetchPatient = async () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const id = useParams().id
-      const patients = await patientService.getAll();
-      const patient = patients.find(patient => patient.id === id)
-      setPatient(patient);
-    };
-    void fetchPatient();*/
   }, []);
   
+  useEffect(() => {
+    const fetchDiagnoses = async () => {
+      const diagnosis = await diagnoseService.getAll();
+      setDiagnosis(diagnosis);
+    };
+    void fetchDiagnoses();
+  }, []);
+
   return (
     <div className="App">
       <Router>
@@ -47,9 +48,9 @@ const App = () => {
           <Divider hidden />
           <Routes>
             <Route path="/" element={<PatientListPage patients={patients} setPatients={setPatients} />} />
-            <Route path="/patients/:id" element={<PatientPage patients={patients} setPatients={function (value: SetStateAction<Patient[]>): void {
+            <Route path="/patients/:id" element={<PatientPage patients={patients} entries={entries} setPatients={function (value: SetStateAction<Patient[]>): void {
               throw new Error("Function not implemented.");
-            } } />} />
+            }} diagnosis={diagnosis} />} />
           </Routes>
         </Container>
       </Router>
