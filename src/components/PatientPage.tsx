@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return*/
 import { ReactElement } from 'react';
 import { useParams } from "react-router-dom";
 import { DiagnoseEntry, Entry, Patient } from "../types";
@@ -20,26 +21,16 @@ const PatientPage = ({patients, setPatients, entries, diagnosis} : Props) => {
   const patient = patients.find((p: { id: string | undefined; }) => p.id === id)
   console.log(diagnosis); //Diagnoosi oliot tietokannasta
   console.log(diagnosis.map(c => c.code));
-  const diagnoses = patient?.entries.map(e => e.diagnosisCodes?.map(d => d));
-  console.log(diagnoses?.map(d => d === diagnosis.map(c => c.code)))
-  console.log(diagnoses?.length);
-  /*
-  for (let i = 0; i < diagnoses.length; i++) {
-    
-    let toPrint = diagnosis.map(c => c.code === diagnoses[i]) 
-    console.log(toPrint);
-    
-  }*/
-  //Monesko listalla tietty koodi on? Samalla indeksillä löytyy nimi.
-  /*
-  const listDiagnose = diagnosis.map(d => d.code)
-  diagnoses?.forEach(d => {
-    if (listDiagnose.includes(d)) {
-      return true
-    }
-  })
-  console.log(listDiagnose); // Kaikkien diagnoosien koodit*/
-  console.log(diagnoses); //Henkilön lista diagnooseista koodina
+  const patientCase = patient?.entries.map(d => d)
+  console.log(patientCase); // Tulostaa entriesin = taulukon jossa oliot
+  const diag = patientCase?.find(c => c.diagnosisCodes)
+  console.log(diag?.diagnosisCodes); // tulostaa taulukon jossa diagnoosit
+  const patientDiagnoses = diag?.diagnosisCodes;
+  //const diagnoses = patient?.entries.map(e => e.diagnosisCodes?.map(d => d)); // tämä tekee arrayn arrayn sisälle, siksi ei voinut verrata taulukoita!
+  const desc = diagnosis.filter(d => patientDiagnoses?.includes(d.code)).map(d => d);//Filtteröidään uuteen desc taulukkoon diagnosis-listalta ne alkiot,
+  // joiden code-arvo sisältyy diagnoses taulukkoon. Etsitään nimet koodeille.
+  
+  console.log(desc);//Tulostaa henkilön diagnoosi oliot
   console.log(id);
   console.log(patient);
   // Gender icon:
@@ -61,7 +52,7 @@ const PatientPage = ({patients, setPatients, entries, diagnosis} : Props) => {
         <h3>Entries</h3>
         {patient?.entries.map(e => <p>{e.date} <i>{e.description}</i></p>)} 
         <ul>
-          {patient?.entries.map(e => e.diagnosisCodes?.map(code => <li key={code}>{code} {diagnosis.map(c => c.name)}</li>))}
+          {patient?.entries.map(e => e.diagnosisCodes?.map(code => <li key={code}>{code} {desc.map(c => {if (c.code === code) {return c.name;}})}</li>))}
         </ul>
       </Typography>
     </div>
