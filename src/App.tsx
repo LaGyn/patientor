@@ -1,4 +1,4 @@
-import { useState, useEffect, SetStateAction } from "react";
+import { useState, useEffect } from "react";
 
 import axios from "axios";
 import { BrowserRouter as Router, Route, Link, Routes } from "react-router-dom";
@@ -10,12 +10,13 @@ import { DiagnoseEntry, Entry, Patient } from "./types";
 import patientService from "./services/patients";
 import diagnoseService from "./services/diagnoses";
 import PatientListPage from "./components/PatientListPage";
-import PatientPage from "./components/PatientPage";
+import PatientPage from "./components/patient/PatientPage";
 
 const App = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [entries] = useState<Entry[]>([]);
   const [diagnosis, setDiagnosis] = useState<DiagnoseEntry[]>([]);
+  const [entry, ] = useState<Entry>();
 
   useEffect(() => {
     void axios.get<void>(`${apiBaseUrl}/ping`);
@@ -23,6 +24,7 @@ const App = () => {
     const fetchPatientList = async () => {
       const patients = await patientService.getAll();
       setPatients(patients);
+      console.log(patients);
     };
     void fetchPatientList();
   }, []);
@@ -31,6 +33,7 @@ const App = () => {
     const fetchDiagnoses = async () => {
       const diagnosis = await diagnoseService.getAll();
       setDiagnosis(diagnosis);
+      //console.log(diagnosis)
     };
     void fetchDiagnoses();
   }, []);
@@ -48,9 +51,7 @@ const App = () => {
           <Divider hidden />
           <Routes>
             <Route path="/" element={<PatientListPage patients={patients} setPatients={setPatients} />} />
-            <Route path="/patients/:id" element={<PatientPage patients={patients} entries={entries} setPatients={function (value: SetStateAction<Patient[]>): void {
-              throw new Error("Function not implemented.");
-            }} diagnosis={diagnosis} />} />
+            <Route path="/patients/:id" element={<PatientPage patients={patients} entries={entries} diagnosis={diagnosis} entry={entry} />} />
           </Routes>
         </Container>
       </Router>
